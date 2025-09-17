@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原神角色伤害计算器</title>
+    <style>
+        :root {
+            --primary: #4a6baf;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --genshin-blue: #3a7fb8;
+            --genshin-gold: #d3bc8e;
+            --genshin-dark: #2a4365;
+            --electro: #a450c9;
+            --electro-light: #d9b6f3;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1100px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--genshin-dark), var(--genshin-blue));
+            color: var(--genshin-gold);
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--genshin-gold);
+        }
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .input-section, .result-section, .electro-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .electro-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(164, 80, 201, 0.15), rgba(164, 80, 201, 0.25));
+            border: 1px solid var(--electro);
+        }
+        .electro-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--electro-light);
+        }
+        .electro-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            text-shadow: 0 0 10px var(--electro);
+        }
+        .section-title {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--genshin-gold);
+            border-bottom: 2px solid var(--genshin-gold);
+            padding-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .electro-title {
+            color: var(--electro-light);
+            border-bottom: 2px solid var(--electro);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--genshin-gold);
+        }
+        .electro-label {
+            color: var(--electro-light);
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            color: white;
+        }
+        input[type="number"]:focus {
+            border-color: var(--genshin-gold);
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 10px rgba(211, 188, 142, 0.3);
+        }
+        .electro-input:focus {
+            border-color: var(--electro);
+            box-shadow: 0 0 10px rgba(164, 80, 201, 0.5);
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .checkbox-group input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        button {
+            background: linear-gradient(135deg, var(--genshin-blue), var(--genshin-dark));
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+            border: 1px solid var(--genshin-gold);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .electro-button {
+            background: linear-gradient(135deg, var(--electro), #7a2f9c);
+            border: 1px solid var(--electro-light);
+        }
+        .result-box {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--genshin-dark), var(--genshin-blue));
+            color: white;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid var(--genshin-gold);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .electro-result {
+            background: linear-gradient(135deg, #4a2570, #6a2d91);
+            border: 1px solid var(--electro);
+        }
+        .result-label {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--genshin-gold);
+        }
+        .electro-result-label {
+            color: var(--electro-light);
+        }
+        .result-value {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin: 15px 0;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .sub-result {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .sub-result-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            margin: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .electro-sub-result {
+            background: rgba(164, 80, 201, 0.2);
+            border: 1px solid var(--electro);
+        }
+        .sub-result-label {
+            font-size: 1rem;
+            color: var(--genshin-gold);
+            margin-bottom: 8px;
+        }
+        .electro-sub-result-label {
+            color: var(--electro-light);
+        }
+        .sub-result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .formula-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .electro-formula {
+            border: 1px solid var(--electro);
+        }
+        .reaction-settings {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        select {
+            width: 100%;padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--genshin-gold);
+        }
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .highlight {
+            color: var(--genshin-gold);
+            font-weight: bold;
+        }
+        .electro-highlight {
+            color: var(--electro-light);
+        }
+        .note {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.9rem;
+        }
+        .electro-note {
+            background: rgba(164, 80, 201, 0.1);
+            border-left: 4px solid var(--electro);
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--electro);
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: rgba(164, 80, 201, 0.2);
+            border: 1px solid var(--electro);
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: rgba(164, 80, 201, 0.4);
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>原神角色伤害计算器</h1>
+            <p class="description">输入角色属性数值，计算技能造成的伤害、期望伤害和基础值，以及月感电伤害</p>
+        </header>
+        <div class="input-section">
+            <h2 class="section-title">角色属性</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="whiteValue">白值</label>
+                    <input type="number" id="whiteValue" value="1000">
+                </div>
+                <div class="input-group">
+                    <label for="percentBonus">百分比加成 (%)</label>
+                    <input type="number" id="percentBonus" value="46.6">
+                </div>
+                <div class="input-group">
+                    <label for="fixedBonus">固定值加成</label>
+                    <input type="number" id="fixedBonus" value="311">
+                </div>
+                <div class="input-group">
+                    <label for="multiplier">倍率 (%)</label>
+                    <input type="number" id="multiplier" value="200">
+                </div>
+                <div class="input-group">
+                    <label for="baseDmgBonus">基础增伤</label>
+                    <input type="number" id="baseDmgBonus" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="dmgBonus">增伤 (%)</label>
+                    <input type="number" id="dmgBonus" value="46.6">
+                </div>
+                <div class="input-group">
+                    <label for="critRate">暴击率 (%)</label>
+                    <input type="number" id="critRate" value="80">
+                </div>
+                <div class="input-group">
+                    <label for="critDmg">暴伤 (%)</label>
+                    <input type="number" id="critDmg" value="200">
+                </div>
+                <div class="input-group">
+                    <label for="charLevel">角色等级</label>
+                    <input type="number" id="charLevel" value="90">
+                </div>
+                <div class="input-group">
+                    <label for="monsterLevel">怪物等级</label>
+                    <input type="number" id="monsterLevel" value="100">
+                </div>
+                <div class="input-group">
+                    <label for="resistanceReduction">减抗 (%)</label>
+                    <input type="number" id="resistanceReduction" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="talentMultiplier">天赋独立乘区 (%)</label>
+                    <input type="number" id="talentMultiplier" value="100">
+                </div>
+                <div class="input-group">
+                    <label for="elementalMastery">元素精通</label>
+                    <input type="number" id="elementalMastery" value="0">
+                </div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="amplifyingReaction">
+                <label for="amplifyingReaction">触发增幅反应</label>
+            </div>
+            <div class="reaction-settings" id="reactionSettings">
+                <label for="reactionType">反应类型</label>
+                <select id="reactionType">
+                    <option value="2.0">火打冰 / 水打火 (2.0x)</option>
+                    <option value="1.5">火打水 / 冰打火 (1.5x)</option>
+                </select>
+                <label for="reactionBonus">反应基础增伤 (%)</label>
+                <input type="number" id="reactionBonus" value="0">
+            </div>
+            <button id="calculateBtn">计算伤害</button>
+        </div>
+        <div class="result-section">
+            <h2 class="section-title">伤害结果</h2>
+            <div class="result-box">
+                <div class="result-label">技能伤害</div>
+                <div class="result-value" id="damageResult">0</div>
+                <div class="sub-result">
+                    <div class="sub-result-item">
+                        <div class="sub-result-label">期望伤害</div>
+                        <div class="sub-result-value" id="expectedDamageResult">0</div>
+                    </div>
+                    <div class="sub-result-item">
+                        <div class="sub-result-label">基础值</div>
+                        <div class="sub-result-value" id="baseValueResult">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">
+                <span class="highlight">期望伤害 = 技能伤害 × 暴击率 + 技能伤害 / (1 + 暴伤) × (1 - 暴击率)</span><br>
+                <span class="highlight">基础值 = 白值 × (1 + 百分比加成) + 固定值加成</span>
+            </div>
+            <h3 class="section-title">伤害公式</h3>
+            <div class="formula-display">
+                伤害 = ((白值 × (1 + 百分比加成) + 固定值加成) × 倍率 + 基础增伤) × (1 + 增伤) × (1 + 暴伤) × ((100 + 角色等级) / (200 + 角色等级 + 怪物等级)) × (1 - 0.1 + 减抗) × 天赋独立乘区 × 增幅反应系数
+（以遗迹守卫为例）
+            </div>
+            <div class="formula-display" id="reactionFormula" style="display: none;">
+                增幅反应系数 = 基础反应系数 × (1 + 2.78 × 元素精通 / (元素精通 + 1400) + 反应基础增伤)
+            </div>
+        </div>
+        <div class="electro-section">
+            <div class="electro-header">
+                <div class="electro-icon">⚡</div>
+                <h2 class="section-title electro-title">月感电伤害计算</h2>
+            </div>
+            <div class="tabs">
+                <div class="tab active" data-tab="reaction">反应月感电伤害</div>
+                <div class="tab" data-tab="direct">直伤月感电伤害</div>
+            </div>
+            <div class="tab-content active" id="reaction-tab">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="electroMastery" class="electro-label">元素精通 (月感电)</label>
+                        <input type="number" id="electroMastery" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="electroBaseBonus" class="electro-label">基础增伤 (%)</label>
+                        <input type="number" id="electroBaseBonus" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="electroBonus" class="electro-label">月感电增伤 (%)</label>
+                        <input type="number" id="electroBonus" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="electroCritRate" class="electro-label">暴击率 (%)</label>
+                        <input type="number" id="electroCritRate" value="80" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="electroCritDmg" class="electro-label">暴伤 (%)</label>
+                        <input type="number" id="electroCritDmg" value="200" class="electro-input">
+                    </div>
+                </div>
+                <div class="result-box electro-result">
+                    <div class="result-label electro-result-label">反应月感电伤害</div>
+                    <div class="result-value" id="reactionElectroResult">0</div>
+                    <div class="sub-result">
+                        <div class="sub-result-item electro-sub-result">
+                            <div class="sub-result-label electro-sub-result-label">期望伤害</div>
+                            <div class="sub-result-value" id="expectedReactionElectroResult">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="note electro-note">
+                    <span class="electro-highlight">反应月感电伤害 = 1446.85 × 1.8 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1-0.1+减抗) × (1 + 暴伤)</span><br>
+                    <span class="electro-highlight">期望伤害 = 反应月感电伤害 × 暴击率 + 反应月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
+                </div>
+            </div>
+            <div class="tab-content" id="direct-tab">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="directElectroMastery" class="electro-label">元素精通 (月感电)</label>
+                        <input type="number" id="directElectroMastery" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="directElectroBaseBonus" class="electro-label">基础增伤 (%)</label>
+                        <input type="number" id="directElectroBaseBonus" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="directElectroBonus" class="electro-label">月感电增伤 (%)</label>
+                        <input type="number" id="directElectroBonus" value="0" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="directElectroCritRate" class="electro-label">暴击率 (%)</label>
+                        <input type="number" id="directElectroCritRate" value="80" class="electro-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="directElectroCritDmg" class="electro-label">暴伤 (%)</label>
+                        <input type="number" id="directElectroCritDmg" value="200" class="electro-input">
+                    </div>
+                </div>
+                <div class="result-box electro-result">
+                    <div class="result-label electro-result-label">直伤月感电伤害</div>
+                    <div class="result-value" id="directElectroResult">0</div>
+                    <div class="sub-result">
+                        <div class="sub-result-item electro-sub-result">
+                            <div class="sub-result-label electro-sub-result-label">期望伤害</div>
+                            <div class="sub-result-value" id="expectedDirectElectroResult">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="note electro-note">
+                    <span class="electro-highlight">直伤月感电伤害 = 3 × 基础值 × 倍率 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1-0.1+减抗) × (1 + 暴伤)</span><br>
+                    <span class="electro-highlight">期望伤害 = 直伤月感电伤害 × 暴击率 + 直伤月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
+                </div>
+            </div>
+            <button id="calculateElectroBtn" class="electro-button">计算月感电伤害</button>
+        </div>
+        <footer>
+            <p>© 2023 原神角色伤害计算器 | 基于提供的伤害公式实现</p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const calculateElectroBtn = document.getElementById('calculateElectroBtn');
+            const amplifyingReaction = document.getElementById('amplifyingReaction');
+            const reactionSettings = document.getElementById('reactionSettings');
+            const reactionFormula = document.getElementById('reactionFormula');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            // 标签切换功能
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            // 显示/隐藏反应设置
+            amplifyingReaction.addEventListener('change', function() {
+                if (this.checked) {
+                    reactionSettings.style.display = 'block';
+                    reactionFormula.style.display = 'block';
+                } else {
+                    reactionSettings.style.display = 'none';
+                    reactionFormula.style.display = 'none';
+                }
+            });
+            // 计算伤害
+            calculateBtn.addEventListener('click', function() {
+                calculateDamage();
+                calculateElectroDamage();
+            });
+            calculateElectroBtn.addEventListener('click', function() {
+                calculateElectroDamage();
+            });
+            // 输入变化时实时计算
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    calculateDamage();
+                    calculateElectroDamage();
+                });
+            });
+            document.getElementById('reactionType').addEventListener('change', calculateDamage);
+            // 初始计算一次
+            calculateDamage();
+            calculateElectroDamage();
+            function calculateDamage() {
+                // 获取输入值
+                const whiteValue = parseFloat(document.getElementById('whiteValue').value) || 0;
+                const percentBonus = parseFloat(document.getElementById('percentBonus').value) / 100 || 0;
+                const fixedBonus = parseFloat(document.getElementById('fixedBonus').value) || 0;
+                const multiplier = parseFloat(document.getElementById('multiplier').value) / 100 || 0;
+                const baseDmgBonus = parseFloat(document.getElementById('baseDmgBonus').value) || 0;
+                const dmgBonus = parseFloat(document.getElementById('dmgBonus').value) / 100 || 0;
+                const critRate = parseFloat(document.getElementById('critRate').value) / 100 || 0;
+                const critDmg = parseFloat(document.getElementById('critDmg').value) / 100 || 0;
+                const charLevel = parseFloat(document.getElementById('charLevel').value) || 0;
+                const monsterLevel = parseFloat(document.getElementById('monsterLevel').value) || 0;
+                const resistanceReduction = parseFloat(document.getElementById('resistanceReduction').value) / 100 || 0;
+                const talentMultiplier = parseFloat(document.getElementById('talentMultiplier').value) / 100 || 0;
+                const elementalMastery = parseFloat(document.getElementById('elementalMastery').value) || 0;
+                // 计算基础值
+                const baseValue = whiteValue * (1 + percentBonus) + fixedBonus;
+                document.getElementById('baseValueResult').textContent = Math.round(baseValue).toLocaleString();
+                // 基础伤害计算
+                let damage = (baseValue * multiplier + baseDmgBonus);
+                // 增伤乘区
+                damage *= (1 + dmgBonus);
+                // 暴伤乘区
+                damage *= (1 + critDmg);
+                // 等级压制公式
+                damage *= ((100 + charLevel) / (200 + charLevel + monsterLevel));
+                // 抗性乘区
+                damage *= (0.9 + resistanceReduction);
+                // 天赋独立乘区
+                damage *= talentMultiplier;
+                // 增幅反应
+                if (amplifyingReaction.checked) {
+                    const baseReaction = parseFloat(document.getElementById('reactionType').value);
+                    const reactionBonus = parseFloat(document.getElementById('reactionBonus').value) / 100 || 0;
+                    const reactionMultiplier = baseReaction * (1 + 2.78 * elementalMastery / (elementalMastery + 1400) + reactionBonus);
+                    damage *= reactionMultiplier;
+                }
+                // 计算期望伤害 (修正后的公式)
+                const nonCritDamage = damage / (1 + critDmg);
+                const expectedDamage = damage * critRate + nonCritDamage * (1 - critRate);
+                // 显示结果
+                document.getElementById('damageResult').textContent = Math.round(damage).toLocaleString();
+                document.getElementById('expectedDamageResult').textContent = Math.round(expectedDamage).toLocaleString();
+            }
+            function calculateElectroDamage() {
+                // 获取通用输入值
+                const resistanceReduction = parseFloat(document.getElementById('resistanceReduction').value) / 100 || 0;                const baseValue = parseFloat(document.getElementById('baseValueResult').textContent.replace(/,/g, '')) || 0;
+                const multiplier = parseFloat(document.getElementById('multiplier').value) / 100 || 0;
+                // 反应月感电伤害计算
+                const electroMastery = parseFloat(document.getElementById('electroMastery').value) || 0;
+                const electroBaseBonus = parseFloat(document.getElementById('electroBaseBonus').value) / 100 || 0;
+                const electroBonus = parseFloat(document.getElementById('electroBonus').value) / 100 || 0;
+                const electroCritRate =parseFloat(document.getElementById('electroCritRate').value) / 100 || 0;
+                const electroCritDmg = parseFloat(document.getElementById('electroCritDmg').value) / 100 || 0;
+                // 反应月感电伤害公式
+                let reactionElectroDamage = 1446.85 * 1.8 * (1 + electroBaseBonus);
+                reactionElectroDamage *= (1 + 6 * electroMastery / (electroMastery + 2000) + electroBonus);
+                reactionElectroDamage *= (0.9+resistanceReduction);
+                reactionElectroDamage *= (1 + electroCritDmg);
+                // 反应月感电期望伤害
+                const nonCritReactionElectro = reactionElectroDamage / (1 + electroCritDmg);
+                const expectedReactionElectro = reactionElectroDamage * electroCritRate + nonCritReactionElectro * (1 - electroCritRate);
+                // 显示反应月感电结果
+                document.getElementById('reactionElectroResult').textContent = Math.round(reactionElectroDamage).toLocaleString();
+                document.getElementById('expectedReactionElectroResult').textContent = Math.round(expectedReactionElectro).toLocaleString();
+                // 直伤月感电伤害计算
+                const directElectroMastery = parseFloat(document.getElementById('directElectroMastery').value) || 0;
+                const directElectroBaseBonus = parseFloat(document.getElementById('directElectroBaseBonus').value) / 100 || 0;
+                const directElectroBonus = parseFloat(document.getElementById('directElectroBonus').value) / 100 || 0;
+                const directElectroCritRate = parseFloat(document.getElementById('directElectroCritRate').value) / 100 || 0;
+                const directElectroCritDmg = parseFloat(document.getElementById('directElectroCritDmg').value) / 100 || 0;
+                // 直伤月感电伤害公式
+                let directElectroDamage = 3 * baseValue * multiplier * (1 + directElectroBaseBonus);
+                directElectroDamage *= (1 + 6 * directElectroMastery / (directElectroMastery + 2000) + directElectroBonus);
+                directElectroDamage *= (0.9+resistanceReduction);
+                directElectroDamage *= (1 + directElectroCritDmg);
+                // 直伤月感电期望伤害
+                const nonCritDirectElectro = directElectroDamage / (1 + directElectroCritDmg);
+                const expectedDirectElectro = directElectroDamage * directElectroCritRate + nonCritDirectElectro * (1 - directElectroCritRate);
+                // 显示直伤月感电结果
+                document.getElementById('directElectroResult').textContent = Math.round(directElectroDamage).toLocaleString();
+                document.getElementById('expectedDirectElectroResult').textContent = Math.round(expectedDirectElectro).toLocaleString();
+            }
+        });
+    </script>
+</body>
+</html>
