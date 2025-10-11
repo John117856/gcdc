@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>原神伤害计算器</title>
+    <title>原神角色伤害计算器</title>
     <style>
         :root {
             --primary: #4a6baf;
@@ -145,7 +145,7 @@
             color: var(--config2);
         }
         
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: 12px 15px;
             background: rgba(255, 255, 255, 0.1);
@@ -156,7 +156,7 @@
             color: var(--text-light);
         }
         
-        input[type="number"]:focus {
+        input[type="number"]:focus, input[type="text"]:focus {
             border-color: var(--genshin-gold);
             outline: none;
             background: rgba(255, 255, 255, 0.15);
@@ -273,9 +273,9 @@
         }
         
         .result-value {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            margin: 15px 0;
+            margin: 10px 0;
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
@@ -293,6 +293,7 @@
             padding: 8px;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
         
         .positive {
@@ -531,13 +532,166 @@
         .tab-content.active {
             display: block;
         }
+        
+        .save-section {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .save-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .save-button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .save-button:hover {
+            background: rgba(40, 167, 69, 0.3);
+        }
+        
+        .search-box {
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        
+        .records-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .record-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .record-name {
+            font-weight: bold;
+            color: var(--genshin-gold);
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .record-action {
+            padding: 5px 10px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .record-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .record-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .record-stat {
+            text-align: center;
+        }
+        
+        .record-stat-label {
+            color: var(--genshin-gold);
+            font-size: 0.8rem;
+        }
+        
+        .record-stat-value {
+            font-weight: bold;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--bg-dark);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--genshin-gold);
+        }
+        
+        .modal-title {
+            margin-bottom: 20px;
+            color: var(--genshin-gold);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .modal-button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+        
+        .modal-confirm {
+            background: var(--success);
+            color: white;
+        }
+        
+        .modal-cancel {
+            background: var(--secondary);
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>原神角色伤害计算器</h1>
-            <p class="description">输入三组配置数据，比较不同配置下的伤害期望差异，并可以计算月感电伤害</p>
+            <p class="description">输入三组配置数据，比较不同配置下的伤害期望差异，并计算月感电伤害</p>
         </header>
         
         <div class="config-section config-original">
@@ -899,28 +1053,39 @@
             
             <div class="result-grid">
                 <div class="result-box">
-                    <div class="result-label">原配置期望伤害</div>
+                    <div class="result-label">原配置</div>
+                    <div class="result-value" id="damageResult">0</div>
+                    <div class="base-value">技能伤害</div>
                     <div class="result-value" id="expectedDamageResult">0</div>
+                    <div class="base-value">期望伤害</div>
                     <div class="base-value" id="baseValueResult">基础值: 0</div>
                     <div class="comparison-value">基准值</div>
                 </div>
                 
                 <div class="result-box result-config-1">
-                    <div class="result-label">配置1期望伤害</div>
+                    <div class="result-label">配置1</div>
+                    <div class="result-value" id="damageResult1">0</div>
+                    <div class="base-value">技能伤害</div>
                     <div class="result-value" id="expectedDamageResult1">0</div>
+                    <div class="base-value">期望伤害</div>
                     <div class="base-value" id="baseValueResult1">基础值: 0</div>
                     <div class="comparison-value" id="comparisonValue1">+0.00%</div>
                 </div>
                 
                 <div class="result-box result-config-2">
-                    <div class="result-label">配置2期望伤害</div>
+                    <div class="result-label">配置2</div>
+                    <div class="result-value" id="damageResult2">0</div>
+                    <div class="base-value">技能伤害</div>
                     <div class="result-value" id="expectedDamageResult2">0</div>
+                    <div class="base-value">期望伤害</div>
                     <div class="base-value" id="baseValueResult2">基础值: 0</div>
                     <div class="comparison-value" id="comparisonValue2">+0.00%</div>
                 </div>
             </div>
             
             <div class="note">
+                <span class="highlight">角色伤害计算公式：</span><br>
+                <span class="highlight">伤害 = ((白值 × (1 + 百分比加成) + 固定值加成) × 倍率 + 基础增伤) × (1 + 增伤 + 易伤 - 减伤) × (1 + 暴伤) × (角色等级 + 100) / [(角色等级 + 100) + (怪物等级 + 100) × (1 - 减防) × (1 - 无视防御)] × (1 - 0.1 + 减抗) × 天赋独立乘区 × 增幅反应系数</span><br>
                 <span class="highlight">期望伤害 = 技能伤害 × 暴击率 + 技能伤害 / (1 + 暴伤) × (1 - 暴击率)</span><br>
                 <span class="highlight">基础值 = 白值 × (1 + 百分比加成) + 固定值加成</span>
             </div>
@@ -956,28 +1121,25 @@
                     
                     <div class="electro-input-group">
                         <label for="electroCritRate" class="electro-label">暴击率 (%)</label>
-                        <input type="number" id="electroCritRate" value="50" class="electro-input">
+                        <input type="number" id="electroCritRate" value="80" class="electro-input">
                     </div>
                     
                     <div class="electro-input-group">
                         <label for="electroCritDmg" class="electro-label">暴伤 (%)</label>
-                        <input type="number" id="electroCritDmg" value="150" class="electro-input">
+                        <input type="number" id="electroCritDmg" value="200" class="electro-input">
                     </div>
                 </div>
                 
                 <div class="electro-result-box">
                     <div class="electro-result-label">反应月感电伤害</div>
                     <div class="electro-result-value" id="reactionElectroResult">0</div>
-                    
-                    <div class="sub-result">
-                        <div class="sub-result-item">
-                            <div class="sub-result-label">期望伤害</div>
-                            <div class="sub-result-value" id="expectedReactionElectroResult">0</div>
-                        </div>
-                    </div>
+                    <div class="base-value">技能伤害</div>
+                    <div class="electro-result-value" id="expectedReactionElectroResult">0</div>
+                    <div class="base-value">期望伤害</div>
                 </div>
                 
                 <div class="electro-note">
+                    <span class="electro-highlight">月感电伤害计算公式：</span><br>
                     <span class="electro-highlight">反应月感电伤害 = 1446.85 × 1.8 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1 - 0.1 + 减抗) × (1 + 暴伤)</span><br>
                     <span class="electro-highlight">期望伤害 = 反应月感电伤害 × 暴击率 + 反应月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
                 </div>
@@ -1002,28 +1164,25 @@
                     
                     <div class="electro-input-group">
                         <label for="directElectroCritRate" class="electro-label">暴击率 (%)</label>
-                        <input type="number" id="directElectroCritRate" value="50" class="electro-input">
+                        <input type="number" id="directElectroCritRate" value="80" class="electro-input">
                     </div>
                     
                     <div class="electro-input-group">
                         <label for="directElectroCritDmg" class="electro-label">暴伤 (%)</label>
-                        <input type="number" id="directElectroCritDmg" value="150" class="electro-input">
+                        <input type="number" id="directElectroCritDmg" value="200" class="electro-input">
                     </div>
                 </div>
                 
                 <div class="electro-result-box">
                     <div class="electro-result-label">直伤月感电伤害</div>
                     <div class="electro-result-value" id="directElectroResult">0</div>
-                    
-                    <div class="sub-result">
-                        <div class="sub-result-item">
-                            <div class="sub-result-label">期望伤害</div>
-                            <div class="sub-result-value" id="expectedDirectElectroResult">0</div>
-                        </div>
-                    </div>
+                    <div class="base-value">技能伤害</div>
+                    <div class="electro-result-value" id="expectedDirectElectroResult">0</div>
+                    <div class="base-value">期望伤害</div>
                 </div>
                 
                 <div class="electro-note">
+                    <span class="electro-highlight">月感电伤害计算公式：</span><br>
                     <span class="electro-highlight">直伤月感电伤害 = 3 × 基础值 × 倍率 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1 - 0.1 + 减抗) × (1 + 暴伤)</span><br>
                     <span class="electro-highlight">期望伤害 = 直伤月感电伤害 × 暴击率 + 直伤月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
                 </div>
@@ -1034,13 +1193,76 @@
             </button>
         </div>
         
+        <div class="save-section">
+            <h2 class="section-title">保存记录</h2>
+            
+            <div class="save-controls">
+                <div class="save-button" onclick="saveConfig('original')">保存原配置</div>
+                <div class="save-button" onclick="saveConfig('config1')">保存配置1</div>
+                <div class="save-button" onclick="saveConfig('config2')">保存配置2</div>
+                <input type="text" id="searchRecords" class="search-box" placeholder="搜索记录..." oninput="filterRecords()">
+            </div>
+            
+            <div class="records-list" id="recordsList">
+                <!-- 记录将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <div class="modal" id="saveModal">
+            <div class="modal-content">
+                <h3 class="modal-title">保存配置</h3>
+                <div class="input-group">
+                    <label for="recordName">记录名称</label>
+                    <input type="text" id="recordName" value="">
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-button modal-cancel" onclick="closeSaveModal()">取消</button>
+                    <button class="modal-button modal-confirm" onclick="confirmSave()">确认保存</button>
+                </div>
+            </div>
+        </div>
+        
         <footer>
-            <p>© 2023 原神伤害计算器 | 基于玉衡杯数据库(yuhengcup.wiki)提供的伤害公式实现</p>
+            <p>© 2023 原神角色伤害计算器 | 基于提供的伤害公式实现</p>
         </footer>
     </div>
 
     <script>
+        // 初始化默认值
         document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认值
+            document.getElementById('percentBonus').value = 46.6;
+            document.getElementById('fixedBonus').value = 311;
+            document.getElementById('dmgBonus').value = 46.6;
+            document.getElementById('critRate').value = 80;
+            document.getElementById('critDmg').value = 200;
+            document.getElementById('charLevel').value = 90;
+            document.getElementById('monsterLevel').value = 100;
+            
+            document.getElementById('percentBonus1').value = 46.6;
+            document.getElementById('fixedBonus1').value = 311;
+            document.getElementById('dmgBonus1').value = 46.6;
+            document.getElementById('critRate1').value = 80;
+            document.getElementById('critDmg1').value = 200;
+            document.getElementById('charLevel1').value = 90;
+            document.getElementById('monsterLevel1').value = 100;
+            
+            document.getElementById('percentBonus2').value = 46.6;
+            document.getElementById('fixedBonus2').value = 311;
+            document.getElementById('dmgBonus2').value = 46.6;
+            document.getElementById('critRate2').value = 80;
+            document.getElementById('critDmg2').value = 200;
+            document.getElementById('charLevel2').value = 90;
+            document.getElementById('monsterLevel2').value = 100;
+            
+            document.getElementById('electroCritRate').value = 80;
+            document.getElementById('electroCritDmg').value = 200;
+            document.getElementById('directElectroCritRate').value = 80;
+            document.getElementById('directElectroCritDmg').value = 200;
+            
+            // 初始化记录存储
+            initRecords();
+            
             const calculateBtn = document.getElementById('calculateBtn');
             const calculateElectroBtn = document.getElementById('calculateElectroBtn');
             const amplifyingReaction = document.getElementById('amplifyingReaction');
@@ -1098,71 +1320,274 @@
             // 初始计算一次
             calculateDamage();
             calculateElectroDamage();
-            
-            // 复制配置功能
-            window.copyConfig = function(fromConfig, toConfig) {
-                const suffixFrom = fromConfig === 'original' ? '' : fromConfig.replace('config', '');
-                const suffixTo = toConfig === 'original' ? '' : toConfig.replace('config', '');
-                
-                const inputs = [
-                    'whiteValue', 'percentBonus', 'fixedBonus', 'multiplier', 'baseDmgBonus',
-                    'dmgBonus', 'vulnerability', 'dmgReduction', 'critRate', 'critDmg',
-                    'charLevel', 'monsterLevel', 'resistanceReduction', 'defenseReduction',
-                    'ignoreDefense', 'talentMultiplier', 'elementalMastery'
-                ];
-                
-                inputs.forEach(input => {
-                    const fromElement = document.getElementById(input + suffixFrom);
-                    const toElement = document.getElementById(input + suffixTo);
-                    if (fromElement && toElement) {
-                        toElement.value = fromElement.value;
-                    }
-                });
-                
-                // 复制复选框状态
-                const fromCheckbox = document.getElementById('amplifyingReaction' + suffixFrom);
-                const toCheckbox = document.getElementById('amplifyingReaction' + suffixTo);
-                if (fromCheckbox && toCheckbox) {
-                    toCheckbox.checked = fromCheckbox.checked;
-                }
-                
-                // 复制反应设置
-                const fromReactionType = document.getElementById('reactionType' + suffixFrom);
-                const toReactionType = document.getElementById('reactionType' + suffixTo);
-                if (fromReactionType && toReactionType) {
-                    toReactionType.value = fromReactionType.value;
-                }
-                
-                const fromReactionBonus = document.getElementById('reactionBonus' + suffixFrom);
-                const toReactionBonus = document.getElementById('reactionBonus' + suffixTo);
-                if (fromReactionBonus && toReactionBonus) {
-                    toReactionBonus.value = fromReactionBonus.value;
-                }
-                
-                // 更新显示状态
-                const toReactionSettings = document.getElementById('reactionSettings' + suffixTo);
-                if (toReactionSettings) {
-                    toReactionSettings.style.display = toCheckbox.checked ? 'block' : 'none';
-                }
-                
-                calculateDamage();
-                calculateElectroDamage();
-            };
         });
+        
+        // 记录存储功能
+        let records = [];
+        let currentSaveConfig = '';
+        
+        function initRecords() {
+            const storedRecords = localStorage.getItem('genshinDamageRecords');
+            if (storedRecords) {
+                records = JSON.parse(storedRecords);
+            }
+            renderRecords();
+        }
+        
+        function saveRecords() {
+            localStorage.setItem('genshinDamageRecords', JSON.stringify(records));
+        }
+        
+        function saveConfig(configType) {
+            currentSaveConfig = configType;
+            const now = new Date();
+            const defaultName = `${configType === 'original' ? '原配置' : configType === 'config1' ? '配置1' : '配置2'} ${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+            document.getElementById('recordName').value = defaultName;
+            document.getElementById('saveModal').style.display = 'flex';
+        }
+        
+        function closeSaveModal() {
+            document.getElementById('saveModal').style.display = 'none';
+        }
+        
+        function confirmSave() {
+            const name = document.getElementById('recordName').value.trim();
+            if (!name) {
+                alert('请输入记录名称');
+                return;
+            }
+            
+            if (records.length >= 20) {
+                alert('已达到最大保存记录数（20条），请删除一些记录后再保存');
+                return;
+            }
+            
+            const configData = getConfigData(currentSaveConfig);
+            const now = new Date();
+            
+            records.unshift({
+                id: Date.now(),
+                name: name,
+                configType: currentSaveConfig,
+                data: configData,
+                timestamp: now.getTime(),
+                displayTime: `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`
+            });
+            
+            saveRecords();
+            renderRecords();
+            closeSaveModal();
+        }
+        
+        function getConfigData(configType) {
+            const suffix = configType === 'original' ? '' : configType.replace('config', '');
+            const result = calculateConfigDamage(suffix);
+            
+            return {
+                whiteValue: parseFloat(document.getElementById('whiteValue' + suffix).value) || 0,
+                percentBonus: parseFloat(document.getElementById('percentBonus' + suffix).value) || 0,
+                fixedBonus: parseFloat(document.getElementById('fixedBonus' + suffix).value) || 0,
+                multiplier: parseFloat(document.getElementById('multiplier' + suffix).value) || 0,
+                baseDmgBonus: parseFloat(document.getElementById('baseDmgBonus' + suffix).value) || 0,
+                dmgBonus: parseFloat(document.getElementById('dmgBonus' + suffix).value) || 0,
+                vulnerability: parseFloat(document.getElementById('vulnerability' + suffix).value) || 0,
+                dmgReduction: parseFloat(document.getElementById('dmgReduction' + suffix).value) || 0,
+                critRate: parseFloat(document.getElementById('critRate' + suffix).value) || 0,
+                critDmg: parseFloat(document.getElementById('critDmg' + suffix).value) || 0,
+                charLevel: parseFloat(document.getElementById('charLevel' + suffix).value) || 0,
+                monsterLevel: parseFloat(document.getElementById('monsterLevel' + suffix).value) || 0,
+                resistanceReduction: parseFloat(document.getElementById('resistanceReduction' + suffix).value) || 0,
+                defenseReduction: parseFloat(document.getElementById('defenseReduction' + suffix).value) || 0,
+                ignoreDefense: parseFloat(document.getElementById('ignoreDefense' + suffix).value) || 0,
+                talentMultiplier: parseFloat(document.getElementById('talentMultiplier' + suffix).value) || 0,
+                elementalMastery: parseFloat(document.getElementById('elementalMastery' + suffix).value) || 0,
+                amplifyingReaction: document.getElementById('amplifyingReaction' + suffix).checked,
+                reactionType: document.getElementById('reactionType' + suffix).value,
+                reactionBonus: parseFloat(document.getElementById('reactionBonus' + suffix).value) || 0,
+                baseValue: result.baseValue,
+                damage: result.damage,
+                expectedDamage: result.expectedDamage
+            };
+        }
+        
+        function loadRecord(id) {
+            const record = records.find(r => r.id === id);
+            if (!record) return;
+            
+            const suffix = record.configType === 'original' ? '' : record.configType.replace('config', '');
+            const data = record.data;
+            
+            document.getElementById('whiteValue' + suffix).value = data.whiteValue;
+            document.getElementById('percentBonus' + suffix).value = data.percentBonus;
+            document.getElementById('fixedBonus' + suffix).value = data.fixedBonus;
+            document.getElementById('multiplier' + suffix).value = data.multiplier;
+            document.getElementById('baseDmgBonus' + suffix).value = data.baseDmgBonus;
+            document.getElementById('dmgBonus' + suffix).value = data.dmgBonus;
+            document.getElementById('vulnerability' + suffix).value = data.vulnerability;
+            document.getElementById('dmgReduction' + suffix).value = data.dmgReduction;
+            document.getElementById('critRate' + suffix).value = data.critRate;
+            document.getElementById('critDmg' + suffix).value = data.critDmg;
+            document.getElementById('charLevel' + suffix).value = data.charLevel;
+            document.getElementById('monsterLevel' + suffix).value = data.monsterLevel;
+            document.getElementById('resistanceReduction' + suffix).value = data.resistanceReduction;
+            document.getElementById('defenseReduction' + suffix).value = data.defenseReduction;
+            document.getElementById('ignoreDefense' + suffix).value = data.ignoreDefense;
+            document.getElementById('talentMultiplier' + suffix).value = data.talentMultiplier;
+            document.getElementById('elementalMastery' + suffix).value = data.elementalMastery;
+            document.getElementById('amplifyingReaction' + suffix).checked = data.amplifyingReaction;
+            document.getElementById('reactionType' + suffix).value = data.reactionType;
+            document.getElementById('reactionBonus' + suffix).value = data.reactionBonus;
+            
+            // 更新显示状态
+            const reactionSettings = document.getElementById('reactionSettings' + suffix);
+            if (reactionSettings) {
+                reactionSettings.style.display = data.amplifyingReaction ? 'block' : 'none';
+            }
+            
+            calculateDamage();
+            calculateElectroDamage();
+        }
+        
+        function deleteRecord(id) {
+            if (confirm('确定要删除这条记录吗？')) {
+                records = records.filter(r => r.id !== id);
+                saveRecords();
+                renderRecords();
+            }
+        }
+        
+        function filterRecords() {
+            const searchTerm = document.getElementById('searchRecords').value.toLowerCase();
+            renderRecords(searchTerm);
+        }
+        
+        function renderRecords(filter = '') {
+            const recordsList = document.getElementById('recordsList');
+            recordsList.innerHTML = '';
+            
+            const filteredRecords = records.filter(record => 
+                record.name.toLowerCase().includes(filter)
+            );
+            
+            if (filteredRecords.length === 0) {
+                recordsList.innerHTML = '<div class="record-item" style="text-align: center; color: var(--genshin-gold);">暂无记录</div>';
+                return;
+            }
+            
+            filteredRecords.forEach(record => {
+                const recordEl = document.createElement('div');
+                recordEl.className = 'record-item';
+                
+                recordEl.innerHTML = `
+                    <div class="record-header">
+                        <div class="record-name">${record.name}</div>
+                        <div class="record-actions">
+                            <div class="record-action" onclick="loadRecord(${record.id})">导入</div>
+                            <div class="record-action" onclick="deleteRecord(${record.id})" style="background: rgba(220, 53, 69, 0.2); border-color: var(--danger); color: var(--danger);">删除</div>
+                        </div>
+                    </div>
+                    <div class="record-stats">
+                        <div class="record-stat">
+                            <div class="record-stat-label">配置类型</div>
+                            <div class="record-stat-value">${record.configType === 'original' ? '原配置' : record.configType === 'config1' ? '配置1' : '配置2'}</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">基础值</div>
+                            <div class="record-stat-value">${Math.round(record.data.baseValue).toLocaleString()}</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">暴击率</div>
+                            <div class="record-stat-value">${record.data.critRate}%</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">暴伤</div>
+                            <div class="record-stat-value">${record.data.critDmg}%</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">技能伤害</div>
+                            <div class="record-stat-value">${Math.round(record.data.damage).toLocaleString()}</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">期望伤害</div>
+                            <div class="record-stat-value">${Math.round(record.data.expectedDamage).toLocaleString()}</div>
+                        </div>
+                        <div class="record-stat">
+                            <div class="record-stat-label">保存时间</div>
+                            <div class="record-stat-value">${record.displayTime}</div>
+                        </div>
+                    </div>
+                `;
+                
+                recordsList.appendChild(recordEl);
+            });
+        }
+        
+        // 复制配置功能
+        window.copyConfig = function(fromConfig, toConfig) {
+            const suffixFrom = fromConfig === 'original' ? '' : fromConfig.replace('config', '');
+            const suffixTo = toConfig === 'original' ? '' : toConfig.replace('config', '');
+            
+            const inputs = [
+                'whiteValue', 'percentBonus', 'fixedBonus', 'multiplier', 'baseDmgBonus',
+                'dmgBonus', 'vulnerability', 'dmgReduction', 'critRate', 'critDmg',
+                'charLevel', 'monsterLevel', 'resistanceReduction', 'defenseReduction',
+                'ignoreDefense', 'talentMultiplier', 'elementalMastery'
+            ];
+            
+            inputs.forEach(input => {
+                const fromElement = document.getElementById(input + suffixFrom);
+                const toElement = document.getElementById(input + suffixTo);
+                if (fromElement && toElement) {
+                    toElement.value = fromElement.value;
+                }
+            });
+            
+            // 复制复选框状态
+            const fromCheckbox = document.getElementById('amplifyingReaction' + suffixFrom);
+            const toCheckbox = document.getElementById('amplifyingReaction' + suffixTo);
+            if (fromCheckbox && toCheckbox) {
+                toCheckbox.checked = fromCheckbox.checked;
+            }
+            
+            // 复制反应设置
+            const fromReactionType = document.getElementById('reactionType' + suffixFrom);
+            const toReactionType = document.getElementById('reactionType' + suffixTo);
+            if (fromReactionType && toReactionType) {
+                toReactionType.value = fromReactionType.value;
+            }
+            
+            const fromReactionBonus = document.getElementById('reactionBonus' + suffixFrom);
+            const toReactionBonus = document.getElementById('reactionBonus' + suffixTo);
+            if (fromReactionBonus && toReactionBonus) {
+                toReactionBonus.value = fromReactionBonus.value;
+            }
+            
+            // 更新显示状态
+            const toReactionSettings = document.getElementById('reactionSettings' + suffixTo);
+            if (toReactionSettings) {
+                toReactionSettings.style.display = toCheckbox.checked ? 'block' : 'none';
+            }
+            
+            calculateDamage();
+            calculateElectroDamage();
+        };
         
         function calculateDamage() {
             // 计算原配置
             const originalResult = calculateConfigDamage('');
+            document.getElementById('damageResult').textContent = Math.round(originalResult.damage).toLocaleString();
             document.getElementById('expectedDamageResult').textContent = Math.round(originalResult.expectedDamage).toLocaleString();
             document.getElementById('baseValueResult').textContent = `基础值: ${Math.round(originalResult.baseValue).toLocaleString()}`;
             
             // 计算配置1
             const config1Result = calculateConfigDamage('1');
+            document.getElementById('damageResult1').textContent = Math.round(config1Result.damage).toLocaleString();
             document.getElementById('expectedDamageResult1').textContent = Math.round(config1Result.expectedDamage).toLocaleString();
             document.getElementById('baseValueResult1').textContent = `基础值: ${Math.round(config1Result.baseValue).toLocaleString()}`;
             
             // 计算配置2
             const config2Result = calculateConfigDamage('2');
+            document.getElementById('damageResult2').textContent = Math.round(config2Result.damage).toLocaleString();
             document.getElementById('expectedDamageResult2').textContent = Math.round(config2Result.expectedDamage).toLocaleString();
             document.getElementById('baseValueResult2').textContent = `基础值: ${Math.round(config2Result.baseValue).toLocaleString()}`;
             
@@ -1249,6 +1674,7 @@
             const monsterLevel = parseFloat(document.getElementById('monsterLevel').value) || 0;
             const baseValue = parseFloat(document.getElementById('baseValueResult').textContent.replace(/[^0-9]/g, '')) || 0;
             const multiplier = parseFloat(document.getElementById('multiplier').value) / 100 || 0;
+            const resistanceReduction = parseFloat(document.getElementById('resistanceReduction').value) / 100 || 0;
             
             // 反应月感电伤害计算
             const electroMastery = parseFloat(document.getElementById('electroMastery').value) || 0;
@@ -1257,10 +1683,10 @@
             const electroCritRate = parseFloat(document.getElementById('electroCritRate').value) / 100 || 0;
             const electroCritDmg = parseFloat(document.getElementById('electroCritDmg').value) / 100 || 0;
             
-            // 反应月感电伤害公式
+            // 反应月感电伤害公式 (修改为使用抗性乘区)
             let reactionElectroDamage = 1446.85 * 1.8 * (1 + electroBaseBonus);
             reactionElectroDamage *= (1 + 6 * electroMastery / (electroMastery + 2000) + electroBonus);
-            reactionElectroDamage *= (1 - 0.1 + resistanceReduction);
+            reactionElectroDamage *= (0.9 + resistanceReduction); // 抗性乘区
             reactionElectroDamage *= (1 + electroCritDmg);
             
             // 反应月感电期望伤害
@@ -1278,10 +1704,10 @@
             const directElectroCritRate = parseFloat(document.getElementById('directElectroCritRate').value) / 100 || 0;
             const directElectroCritDmg = parseFloat(document.getElementById('directElectroCritDmg').value) / 100 || 0;
             
-            // 直伤月感电伤害公式
+            // 直伤月感电伤害公式 (修改为使用抗性乘区)
             let directElectroDamage = 3 * baseValue * multiplier * (1 + directElectroBaseBonus);
             directElectroDamage *= (1 + 6 * directElectroMastery / (directElectroMastery + 2000) + directElectroBonus);
-            directElectroDamage *= (1 - 0.1 + resistanceReduction);
+            directElectroDamage *= (0.9 + resistanceReduction); // 抗性乘区
             directElectroDamage *= (1 + directElectroCritDmg);
             
             // 直伤月感电期望伤害
