@@ -978,7 +978,7 @@
                 </div>
                 
                 <div class="electro-note">
-                    <span class="electro-highlight">反应月感电伤害 = 1446.85 × 1.8 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (100 + 角色等级) / (200 + 角色等级 + 怪物等级) × (1 + 暴伤)</span><br>
+                    <span class="electro-highlight">反应月感电伤害 = 1446.85 × 1.8 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1 - 0.1 + 减抗) × (1 + 暴伤)</span><br>
                     <span class="electro-highlight">期望伤害 = 反应月感电伤害 × 暴击率 + 反应月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
                 </div>
             </div>
@@ -1024,7 +1024,7 @@
                 </div>
                 
                 <div class="electro-note">
-                    <span class="electro-highlight">直伤月感电伤害 = 3 × 基础值 × 倍率 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (100 + 角色等级) / (200 + 角色等级 + 怪物等级) × (1 + 暴伤)</span><br>
+                    <span class="electro-highlight">直伤月感电伤害 = 3 × 基础值 × 倍率 × (1 + 基础增伤) × (1 + 6 × 元素精通 / (元素精通 + 2000) + 月感电增伤) × (1 - 0.1 + 减抗) × (1 + 暴伤)</span><br>
                     <span class="electro-highlight">期望伤害 = 直伤月感电伤害 × 暴击率 + 直伤月感电伤害 / (1 + 暴伤) × (1 - 暴击率)</span>
                 </div>
             </div>
@@ -1260,7 +1260,7 @@
             // 反应月感电伤害公式
             let reactionElectroDamage = 1446.85 * 1.8 * (1 + electroBaseBonus);
             reactionElectroDamage *= (1 + 6 * electroMastery / (electroMastery + 2000) + electroBonus);
-            reactionElectroDamage *= ((100 + charLevel) / (200 + charLevel + monsterLevel));
+            reactionElectroDamage *= (1 - 0.1 + resistanceReduction);
             reactionElectroDamage *= (1 + electroCritDmg);
             
             // 反应月感电期望伤害
@@ -1281,7 +1281,7 @@
             // 直伤月感电伤害公式
             let directElectroDamage = 3 * baseValue * multiplier * (1 + directElectroBaseBonus);
             directElectroDamage *= (1 + 6 * directElectroMastery / (directElectroMastery + 2000) + directElectroBonus);
-            directElectroDamage *= ((100 + charLevel) / (200 + charLevel + monsterLevel));
+            directElectroDamage *= (1 - 0.1 + resistanceReduction);
             directElectroDamage *= (1 + directElectroCritDmg);
             
             // 直伤月感电期望伤害
